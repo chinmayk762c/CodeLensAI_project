@@ -1,0 +1,19 @@
+# Backend
+backend/target/
+*.class
+
+# Frontend (once we add it)
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env

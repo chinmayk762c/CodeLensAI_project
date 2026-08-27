@@ -1,0 +1,22 @@
+package com.codelens.backend;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.time.Instant;
+import java.util.Map;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:5173")
+public class HealthController {
+
+    @GetMapping("/api/health")
+    public Map<String, Object> healthCheck() {
+        return Map.of(
+                "status", "UP",
+                "service", "CodeLens AI Backend",
+                "timestamp", Instant.now().toString()
+        );
+    }
+}
