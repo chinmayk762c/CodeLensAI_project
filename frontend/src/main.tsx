@@ -1,4 +1,5 @@
 import { StrictMode } from "react"
+import SubmitPage from "@/pages/SubmitPage"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import "./index.css"
@@ -22,6 +23,14 @@ createRoot(document.getElementById("root")!).render(
             }
           />
           <Route path="/login" element={<LoginPage />} />
+                    <Route
+            path="/submit"
+            element={
+              <ProtectedRoute>
+                <SubmitPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </AuthProvider>

@@ -19,9 +19,14 @@ export default function HomePage() {
           <p className="text-zinc-400 mb-4">
             Logged in as {user.fullName} ({user.email})
           </p>
-          <Button onClick={handleLogout} variant="outline">
-            Log Out
-          </Button>
+                    <div className="flex gap-2">
+            <Button onClick={() => navigate("/submit")}>
+              New Submission
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              Log Out
+            </Button>
+          </div>
         </>
       ) : (
         <p className="text-zinc-400">Not logged in.</p>
