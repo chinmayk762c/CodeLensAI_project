@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { Send } from "lucide-react"
+import Logo from "@/components/Logo"
 import Editor from "@monaco-editor/react"
 import { Button } from "@/components/ui/button"
-import { createSubmission } from "@/lib/submissionApi"
+import { createSubmission } from "@/lib/SubmissionApi"
 import { useNavigate } from "react-router-dom"
 
 const DEFAULT_CODE = `public class Main {
@@ -32,9 +34,15 @@ export default function SubmitPage() {
 
   return (
        <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col font-mono">
-      <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg">CodeLens AI — New Submission</h1>
-        <Button onClick={handleSubmit} disabled={submitting}>
+            <header className="border-b border-border px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate("/")} className="cursor-pointer">
+            <Logo size="sm" />
+          </button>
+          <span className="text-sm text-muted-foreground">/ New Submission</span>
+        </div>
+        <Button onClick={handleSubmit} disabled={submitting} className="gap-1.5">
+          <Send size={14} />
           {submitting ? "Submitting..." : "Submit for Analysis"}
         </Button>
       </header>

@@ -3,9 +3,11 @@ import { useNavigate, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { loginUser } from "@/lib/authApi"
 import { useAuth } from "@/context/AuthContext"
+import Logo from "@/components/Logo"
+import { LogIn } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -33,10 +35,14 @@ export default function LoginPage() {
   }
 
   return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-            <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono p-4">
+      <div className="mb-8">
+        <Logo />
+      </div>
+
+      <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl font-mono">CodeLens AI — Login</CardTitle>
+          <p className="text-sm text-muted-foreground">Log in to your account</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,14 +71,15 @@ export default function LoginPage() {
               <p className="text-sm text-red-400">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full gap-1.5" disabled={loading}>
+              <LogIn size={14} />
               {loading ? "Logging in..." : "Log In"}
             </Button>
           </form>
 
-          <p className="text-sm text-zinc-400 mt-4 text-center">
+          <p className="text-sm text-muted-foreground mt-4 text-center">
             Don't have an account?{" "}
-            <Link to="/register" className="text-zinc-100 underline">
+            <Link to="/register" className="text-foreground underline underline-offset-2">
               Register
             </Link>
           </p>

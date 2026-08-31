@@ -3,9 +3,11 @@ import { useNavigate, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { registerUser } from "@/lib/authApi"
 import { useAuth } from "@/context/AuthContext"
+import Logo from "@/components/Logo"
+import { UserPlus } from "lucide-react"
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("")
@@ -34,10 +36,14 @@ export default function RegisterPage() {
   }
 
   return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-            <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono p-4">
+      <div className="mb-8">
+        <Logo />
+      </div>
+
+      <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl font-mono">CodeLens AI — Register</CardTitle>
+          <p className="text-sm text-muted-foreground">Create your account</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,14 +83,15 @@ export default function RegisterPage() {
               <p className="text-sm text-red-400">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full gap-1.5" disabled={loading}>
+              <UserPlus size={14} />
               {loading ? "Creating account..." : "Register"}
             </Button>
           </form>
 
-          <p className="text-sm text-zinc-400 mt-4 text-center">
+          <p className="text-sm text-muted-foreground mt-4 text-center">
             Already have an account?{" "}
-            <Link to="/login" className="text-zinc-100 underline">
+            <Link to="/login" className="text-foreground underline underline-offset-2">
               Log In
             </Link>
           </p>
