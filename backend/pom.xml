@@ -106,6 +106,16 @@
                         <artifactId>junit-platform-launcher</artifactId>
                         <scope>test</scope>
                 </dependency>
+                <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-java</artifactId>
+                        <version>7.21.0</version>
+                </dependency>
+                <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>10.21.0</version>
+                </dependency>
 	</dependencies>
 
 	<build>
