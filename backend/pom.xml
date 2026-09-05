@@ -116,6 +116,11 @@
                         <artifactId>checkstyle</artifactId>
                         <version>10.21.0</version>
                 </dependency>
+                <dependency>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs</artifactId>
+                        <version>4.9.8</version>
+                </dependency>
 	</dependencies>
 
 	<build>

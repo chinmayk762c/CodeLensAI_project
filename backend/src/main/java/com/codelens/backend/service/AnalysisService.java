@@ -13,6 +13,8 @@ import com.codelens.backend.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import com.codelens.backend.analysis.JavaCompilerService;
+import com.codelens.backend.analysis.SpotBugsRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,8 @@ public class AnalysisService {
     private final CodeFileWriter codeFileWriter;
     private final PmdRunner pmdRunner;
     private final CheckstyleRunner checkstyleRunner;
+    private final JavaCompilerService javaCompilerService;
+    private final SpotBugsRunner spotBugsRunner;
 
     public AnalysisReportResponse analyze(String userEmail, Long submissionId) {
         CodeSubmission submission = submissionRepository.findById(submissionId)
@@ -46,8 +50,27 @@ public class AnalysisService {
             written = codeFileWriter.write(submission.getCode());
 
             List<RawIssue> rawIssues = new ArrayList<>();
+
             rawIssues.addAll(pmdRunner.run(written.javaFile()));
             rawIssues.addAll(checkstyleRunner.run(written.javaFile()));
+
+            JavaCompilerService.CompileResult compileResult = javaCompilerService.compile(written.javaFile());
+            if (compileResult.success()) {
+                try {
+                    rawIssues.addAll(spotBugsRunner.run(compileResult.classOutputDir()));
+                } finally {
+                    codeFileWriter.cleanup(compileResult.classOutputDir());
+                }
+            } else {
+                rawIssues.add(new RawIssue(
+                        IssueSeverity.HIGH,
+                        IssueCategory.BUG,
+                        "Code does not compile — SpotBugs analysis skipped. Compiler output: "
+                                + compileResult.errorOutput().trim(),
+                        null,
+                        null
+                ));
+            }
 
             List<Issue> savedIssues = new ArrayList<>();
             for (RawIssue raw : rawIssues) {
