@@ -1,9 +1,14 @@
 package com.codelens.backend.service;
 
+import com.codelens.backend.ai.AiIssueDto;
+import com.codelens.backend.ai.AiReviewResult;
+import com.codelens.backend.ai.AiReviewService;
 import com.codelens.backend.analysis.CheckstyleRunner;
 import com.codelens.backend.analysis.CodeFileWriter;
+import com.codelens.backend.analysis.JavaCompilerService;
 import com.codelens.backend.analysis.PmdRunner;
 import com.codelens.backend.analysis.RawIssue;
+import com.codelens.backend.analysis.SpotBugsRunner;
 import com.codelens.backend.dto.AnalysisReportResponse;
 import com.codelens.backend.dto.IssueResponse;
 import com.codelens.backend.entity.*;
@@ -13,8 +18,6 @@ import com.codelens.backend.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import com.codelens.backend.analysis.JavaCompilerService;
-import com.codelens.backend.analysis.SpotBugsRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ public class AnalysisService {
     private final CheckstyleRunner checkstyleRunner;
     private final JavaCompilerService javaCompilerService;
     private final SpotBugsRunner spotBugsRunner;
+    private final AiReviewService aiReviewService;
 
     public AnalysisReportResponse analyze(String userEmail, Long submissionId) {
         CodeSubmission submission = submissionRepository.findById(submissionId)
@@ -50,7 +54,6 @@ public class AnalysisService {
             written = codeFileWriter.write(submission.getCode());
 
             List<RawIssue> rawIssues = new ArrayList<>();
-
             rawIssues.addAll(pmdRunner.run(written.javaFile()));
             rawIssues.addAll(checkstyleRunner.run(written.javaFile()));
 
@@ -84,6 +87,27 @@ public class AnalysisService {
                 savedIssues.add(issueRepository.save(issue));
             }
 
+            try {
+                AiReviewResult aiResult = aiReviewService.review(submission.getCode(), rawIssues);
+                report.setAiSummary(aiResult.summary());
+                report.setOptimizedCode(aiResult.optimizedCode());
+
+                if (aiResult.additionalIssues() != null) {
+                    for (AiIssueDto aiIssue : aiResult.additionalIssues()) {
+                        Issue issue = new Issue();
+                        issue.setReport(report);
+                        issue.setSeverity(parseSeverityOrDefault(aiIssue.severity()));
+                        issue.setCategory(parseCategoryOrDefault(aiIssue.category()));
+                        issue.setDescription("[AI] " + aiIssue.description());
+                        issue.setLineNumber(aiIssue.lineNumber());
+                        savedIssues.add(issueRepository.save(issue));
+                    }
+                }
+            } catch (Exception aiException) {
+                aiException.printStackTrace();
+                report.setAiSummary("AI review unavailable: " + aiException.getMessage());
+            }
+
             report.setStatus(AnalysisStatus.COMPLETED);
             reportRepository.save(report);
 
@@ -100,6 +124,22 @@ public class AnalysisService {
         }
     }
 
+    private IssueSeverity parseSeverityOrDefault(String value) {
+        try {
+            return IssueSeverity.valueOf(value);
+        } catch (Exception e) {
+            return IssueSeverity.MEDIUM;
+        }
+    }
+
+    private IssueCategory parseCategoryOrDefault(String value) {
+        try {
+            return IssueCategory.valueOf(value);
+        } catch (Exception e) {
+            return IssueCategory.BUG;
+        }
+    }
+
     private AnalysisReportResponse toResponse(AnalysisReport report, List<Issue> issues) {
         List<IssueResponse> issueResponses = issues.stream()
                 .map(i -> new IssueResponse(
@@ -113,6 +153,8 @@ public class AnalysisService {
                 report.getSubmission().getId(),
                 report.getStatus(),
                 report.getOverallScore(),
+                report.getAiSummary(),
+                report.getOptimizedCode(),
                 report.getCreatedAt(),
                 issueResponses
         );

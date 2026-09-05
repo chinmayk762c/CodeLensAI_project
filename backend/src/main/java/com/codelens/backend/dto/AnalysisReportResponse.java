@@ -10,6 +10,8 @@ public record AnalysisReportResponse(
         Long submissionId,
         AnalysisStatus status,
         Integer overallScore,
+        String aiSummary,
+        String optimizedCode,
         Instant createdAt,
         List<IssueResponse> issues
 ) {}
