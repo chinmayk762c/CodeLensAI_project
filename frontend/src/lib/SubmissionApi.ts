@@ -19,3 +19,15 @@ export function createSubmission(language: Language, code: string): Promise<Subm
 export function getSubmission(id: number): Promise<SubmissionResponse> {
   return apiFetch<SubmissionResponse>(`/submissions/${id}`)
 }
+export interface SubmissionSummary {
+  id: number
+  language: Language
+  codePreview: string
+  createdAt: string
+  latestScore: number | null
+  latestStatus: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | null
+}
+
+export function listSubmissions(): Promise<SubmissionSummary[]> {
+  return apiFetch<SubmissionSummary[]>("/submissions")
+}

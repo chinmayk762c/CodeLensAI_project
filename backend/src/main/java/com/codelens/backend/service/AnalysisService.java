@@ -31,6 +31,7 @@ public class AnalysisService {
     private final IssueRepository issueRepository;
     private final CodeFileWriter codeFileWriter;
     private final PmdRunner pmdRunner;
+    private final ScoringService scoringService;
     private final CheckstyleRunner checkstyleRunner;
     private final JavaCompilerService javaCompilerService;
     private final SpotBugsRunner spotBugsRunner;
@@ -53,9 +54,31 @@ public class AnalysisService {
         try {
             written = codeFileWriter.write(submission.getCode());
 
-            List<RawIssue> rawIssues = new ArrayList<>();
-            rawIssues.addAll(pmdRunner.run(written.javaFile()));
-            rawIssues.addAll(checkstyleRunner.run(written.javaFile()));
+                        List<RawIssue> rawIssues = new ArrayList<>();
+
+            try {
+                rawIssues.addAll(pmdRunner.run(written.javaFile()));
+            } catch (Exception pmdException) {
+                rawIssues.add(new RawIssue(
+                        IssueSeverity.HIGH,
+                        IssueCategory.BUG,
+                        "PMD could not parse this code — it likely contains a syntax error. PMD error: " + pmdException.getMessage(),
+                        null,
+                        null
+                ));
+            }
+
+            try {
+                rawIssues.addAll(checkstyleRunner.run(written.javaFile()));
+            } catch (Exception checkstyleException) {
+                rawIssues.add(new RawIssue(
+                        IssueSeverity.HIGH,
+                        IssueCategory.BUG,
+                        "Checkstyle could not parse this code — it likely contains a syntax error. Checkstyle error: " + checkstyleException.getMessage(),
+                        null,
+                        null
+                ));
+            }
 
             JavaCompilerService.CompileResult compileResult = javaCompilerService.compile(written.javaFile());
             if (compileResult.success()) {
@@ -108,6 +131,8 @@ public class AnalysisService {
                 report.setAiSummary("AI review unavailable: " + aiException.getMessage());
             }
 
+            int score = scoringService.calculateScore(savedIssues);
+            report.setOverallScore(score);
             report.setStatus(AnalysisStatus.COMPLETED);
             reportRepository.save(report);
 
@@ -148,15 +173,34 @@ public class AnalysisService {
                 ))
                 .toList();
 
+                boolean qualityGatePassed = report.getOverallScore() != null
+                && scoringService.passesQualityGate(report.getOverallScore());
+
         return new AnalysisReportResponse(
                 report.getId(),
                 report.getSubmission().getId(),
                 report.getStatus(),
                 report.getOverallScore(),
+                qualityGatePassed,
                 report.getAiSummary(),
                 report.getOptimizedCode(),
                 report.getCreatedAt(),
                 issueResponses
         );
+    }
+    public AnalysisReportResponse getLatestReport(String userEmail, Long submissionId) {
+        CodeSubmission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
+
+        if (!submission.getUser().getEmail().equals(userEmail)) {
+            throw new AccessDeniedException("You do not have access to this submission");
+        }
+
+        AnalysisReport report = reportRepository.findTopBySubmission_IdOrderByCreatedAtDesc(submissionId)
+                .orElseThrow(() -> new IllegalArgumentException("No analysis report found for this submission"));
+
+        List<Issue> issues = issueRepository.findByReport_Id(report.getId());
+
+        return toResponse(report, issues);
     }
 }

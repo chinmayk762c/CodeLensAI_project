@@ -1,11 +1,12 @@
 import { StrictMode } from "react"
+import ReportPage from "@/pages/ReportPage"
 import SubmitPage from "@/pages/SubmitPage"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import "./index.css"
 import { AuthProvider } from "@/context/AuthContext"
 import ProtectedRoute from "@/components/ProtectedRoute"
-import HomePage from "@/components/HomePage"
+import HomePage from "@/pages/HomePage"
 import LoginPage from "@/pages/LoginPage"
 import RegisterPage from "@/pages/RegisterPage"
 
@@ -28,6 +29,14 @@ createRoot(document.getElementById("root")!).render(
             element={
               <ProtectedRoute>
                 <SubmitPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submissions/:id"
+            element={
+              <ProtectedRoute>
+                <ReportPage />
               </ProtectedRoute>
             }
           />

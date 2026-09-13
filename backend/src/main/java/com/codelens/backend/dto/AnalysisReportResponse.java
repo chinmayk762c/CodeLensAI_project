@@ -10,6 +10,7 @@ public record AnalysisReportResponse(
         Long submissionId,
         AnalysisStatus status,
         Integer overallScore,
+        boolean qualityGatePassed,
         String aiSummary,
         String optimizedCode,
         Instant createdAt,

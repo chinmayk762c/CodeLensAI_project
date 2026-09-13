@@ -26,7 +26,6 @@ public class CodeSubmission {
     @Column(nullable = false)
     private Language language;
 
-    @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String code;
 

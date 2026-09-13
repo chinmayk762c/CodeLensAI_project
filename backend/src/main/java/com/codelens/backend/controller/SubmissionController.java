@@ -4,6 +4,8 @@ import com.codelens.backend.dto.SubmissionRequest;
 import com.codelens.backend.dto.SubmissionResponse;
 import com.codelens.backend.service.SubmissionService;
 import jakarta.validation.Valid;
+import com.codelens.backend.dto.SubmissionSummaryResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,10 @@ public class SubmissionController {
     ) {
         SubmissionResponse response = submissionService.createSubmission(authentication.getName(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    @GetMapping
+    public ResponseEntity<List<SubmissionSummaryResponse>> list(Authentication authentication) {
+        return ResponseEntity.ok(submissionService.listSubmissions(authentication.getName()));
     }
 
     @GetMapping("/{id}")

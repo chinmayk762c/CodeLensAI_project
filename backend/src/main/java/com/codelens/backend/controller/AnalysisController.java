@@ -31,4 +31,15 @@ public class AnalysisController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
+    @GetMapping("/{id}/report")
+    public ResponseEntity<?> getReport(@PathVariable Long id, Authentication authentication) {
+        try {
+            AnalysisReportResponse response = analysisService.getLatestReport(authentication.getName(), id);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
