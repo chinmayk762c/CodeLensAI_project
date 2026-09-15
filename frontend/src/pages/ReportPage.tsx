@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { exportReport } from "@/lib/reportApi"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -101,7 +102,7 @@ export default function ReportPage() {
           <Button onClick={handleAnalyze} disabled={analyzing}>
             {analyzing ? "Analyzing..." : "Run Analysis"}
           </Button>
-          <Button variant="outline" onClick={() => navigate("/")}>Back to Home</Button>
+                    <Button variant="outline" onClick={() => navigate("/")}>Back to Home</Button>
         </div>
       </div>
     )
@@ -129,8 +130,14 @@ export default function ReportPage() {
         </button>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">Submission #{report.submissionId}</span>
-          <Button size="sm" variant="outline" onClick={handleAnalyze} disabled={analyzing}>
+                    <Button size="sm" variant="outline" onClick={handleAnalyze} disabled={analyzing}>
             {analyzing ? "Re-analyzing..." : "Re-analyze"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => exportReport(Number(id), "csv")}>
+            Export CSV
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => exportReport(Number(id), "pdf")}>
+            Export PDF
           </Button>
         </div>
       </header>

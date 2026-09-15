@@ -42,3 +42,20 @@ export function generateDocstrings(submissionId: number): Promise<DocstringRespo
     method: "POST",
   })
 }
+export async function exportReport(submissionId: number, format: "csv" | "pdf"): Promise<void> {
+  const token = localStorage.getItem("token")
+  const res = await fetch(`http://localhost:8080/api/submissions/${submissionId}/export/${format}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error("Export failed")
+
+  const blob = await res.blob()
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `report-${submissionId}.${format}`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(url)
+}

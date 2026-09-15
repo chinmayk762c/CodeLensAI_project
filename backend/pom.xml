@@ -141,6 +141,11 @@
                         <artifactId>junit-platform-console-standalone</artifactId>
                         <version>6.0.3</version>
                 </dependency>
+                <dependency>
+                        <groupId>org.apache.pdfbox</groupId>
+                        <artifactId>pdfbox</artifactId>
+                        <version>3.0.8</version>
+                </dependency>
 	</dependencies>
         <dependencyManagement>
                 <dependencies>
