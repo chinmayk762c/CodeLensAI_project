@@ -28,6 +28,8 @@ public class CodeSubmission {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String code;
+    @Column(columnDefinition = "TEXT")
+    private String testCode;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();

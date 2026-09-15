@@ -15,6 +15,7 @@ export interface AnalysisReportResponse {
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED"
   overallScore: number | null
   qualityGatePassed: boolean
+  coveragePercentage: number | null
   aiSummary: string | null
   optimizedCode: string | null
   createdAt: string

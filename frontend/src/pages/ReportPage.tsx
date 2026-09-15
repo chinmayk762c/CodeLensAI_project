@@ -227,6 +227,19 @@ export default function ReportPage() {
             </CardContent>
           )}
         </Card>
+        {report.coveragePercentage !== null && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Test Coverage</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-4xl font-semibold">
+                {report.coveragePercentage.toFixed(1)}
+                <span className="text-lg text-muted-foreground">%</span>
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   )

@@ -8,5 +8,6 @@ public record SubmissionResponse(
         Long id,
         Language language,
         String code,
+        String testCode,
         Instant createdAt
 ) {}

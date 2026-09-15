@@ -2,6 +2,7 @@ package com.codelens.backend.service;
 
 import com.codelens.backend.ai.AiIssueDto;
 import com.codelens.backend.ai.AiReviewResult;
+import com.codelens.backend.analysis.CoverageRunner;
 import com.codelens.backend.ai.AiReviewService;
 import com.codelens.backend.analysis.CheckstyleRunner;
 import com.codelens.backend.analysis.CodeFileWriter;
@@ -29,6 +30,7 @@ public class AnalysisService {
     private final CodeSubmissionRepository submissionRepository;
     private final AnalysisReportRepository reportRepository;
     private final IssueRepository issueRepository;
+    private final CoverageRunner coverageRunner;
     private final CodeFileWriter codeFileWriter;
     private final PmdRunner pmdRunner;
     private final ScoringService scoringService;
@@ -130,7 +132,14 @@ public class AnalysisService {
                 aiException.printStackTrace();
                 report.setAiSummary("AI review unavailable: " + aiException.getMessage());
             }
-
+            if (submission.getTestCode() != null && !submission.getTestCode().isBlank()) {
+                try {
+                    Double coverage = coverageRunner.run(submission.getCode(), submission.getTestCode());
+                    report.setCoveragePercentage(coverage);
+                } catch (Exception coverageException) {
+                    // Coverage is best-effort; don't fail the whole analysis if it errors
+                }
+            }
             int score = scoringService.calculateScore(savedIssues);
             report.setOverallScore(score);
             report.setStatus(AnalysisStatus.COMPLETED);
@@ -176,12 +185,13 @@ public class AnalysisService {
                 boolean qualityGatePassed = report.getOverallScore() != null
                 && scoringService.passesQualityGate(report.getOverallScore());
 
-        return new AnalysisReportResponse(
+                return new AnalysisReportResponse(
                 report.getId(),
                 report.getSubmission().getId(),
                 report.getStatus(),
                 report.getOverallScore(),
                 qualityGatePassed,
+                report.getCoveragePercentage(),
                 report.getAiSummary(),
                 report.getOptimizedCode(),
                 report.getCreatedAt(),

@@ -9,5 +9,7 @@ public record SubmissionRequest(
         Language language,
 
         @NotBlank(message = "Code cannot be empty")
-        String code
+        String code,
+
+        String testCode
 ) {}

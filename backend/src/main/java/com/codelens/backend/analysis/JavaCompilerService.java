@@ -37,4 +37,29 @@ public class JavaCompilerService {
             return new CompileResult(success, outputDir, errorWriter.toString());
         }
     }
+    public CompileResult compileWithClasspath(Path javaFile, Path outputDir, String extraClasspath) throws IOException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            throw new IllegalStateException("No system Java compiler available");
+        }
+
+        Files.createDirectories(outputDir);
+        StringWriter errorWriter = new StringWriter();
+
+        try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
+            fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(outputDir.toFile()));
+
+            List<String> options = List.of("-classpath", extraClasspath);
+
+            Iterable<? extends JavaFileObject> compilationUnits =
+                    fileManager.getJavaFileObjectsFromPaths(List.of(javaFile));
+
+            JavaCompiler.CompilationTask task = compiler.getTask(
+                    errorWriter, fileManager, null, options, null, compilationUnits
+            );
+
+            boolean success = task.call();
+            return new CompileResult(success, outputDir, errorWriter.toString());
+        }
+    }
 }

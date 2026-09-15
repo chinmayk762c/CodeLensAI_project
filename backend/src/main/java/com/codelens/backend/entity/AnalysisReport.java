@@ -32,6 +32,7 @@ public class AnalysisReport {
 
     @Column(columnDefinition = "TEXT")
     private String optimizedCode;
+    private Double coveragePercentage;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();

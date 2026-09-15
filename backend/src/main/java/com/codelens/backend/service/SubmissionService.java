@@ -31,6 +31,7 @@ public class SubmissionService {
         submission.setUser(user);
         submission.setLanguage(request.language());
         submission.setCode(request.code());
+        submission.setTestCode(request.testCode());
 
         submissionRepository.save(submission);
 
@@ -49,10 +50,11 @@ public class SubmissionService {
     }
 
     private SubmissionResponse toResponse(CodeSubmission submission) {
-        return new SubmissionResponse(
+                return new SubmissionResponse(
                 submission.getId(),
                 submission.getLanguage(),
                 submission.getCode(),
+                submission.getTestCode(),
                 submission.getCreatedAt()
         );
     }

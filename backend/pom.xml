@@ -125,6 +125,22 @@
                         <groupId>org.springframework.ai</groupId>
                         <artifactId>spring-ai-starter-model-google-genai</artifactId>
                 </dependency>
+                <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.core</artifactId>
+                        <version>0.8.15</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.agent</artifactId>
+                        <version>0.8.15</version>
+                        <classifier>runtime</classifier>
+                </dependency>
+                <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-console-standalone</artifactId>
+                        <version>6.0.3</version>
+                </dependency>
 	</dependencies>
         <dependencyManagement>
                 <dependencies>

@@ -6,13 +6,14 @@ export interface SubmissionResponse {
   id: number
   language: Language
   code: string
+  testCode?: string | null
   createdAt: string
 }
 
-export function createSubmission(language: Language, code: string): Promise<SubmissionResponse> {
+export function createSubmission(language: Language, code: string, testCode?: string): Promise<SubmissionResponse> {
   return apiFetch<SubmissionResponse>("/submissions", {
     method: "POST",
-    body: JSON.stringify({ language, code }),
+    body: JSON.stringify({ language, code, testCode: testCode || null }),
   })
 }
 

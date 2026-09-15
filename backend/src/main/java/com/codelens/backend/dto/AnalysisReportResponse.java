@@ -11,6 +11,7 @@ public record AnalysisReportResponse(
         AnalysisStatus status,
         Integer overallScore,
         boolean qualityGatePassed,
+        Double coveragePercentage,
         String aiSummary,
         String optimizedCode,
         Instant createdAt,
