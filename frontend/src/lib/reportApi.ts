@@ -44,7 +44,7 @@ export function generateDocstrings(submissionId: number): Promise<DocstringRespo
 }
 export async function exportReport(submissionId: number, format: "csv" | "pdf"): Promise<void> {
   const token = localStorage.getItem("token")
-  const res = await fetch(`http://localhost:8080/api/submissions/${submissionId}/export/${format}`, {
+    const res = await fetch(`/api/submissions/${submissionId}/export/${format}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!res.ok) throw new Error("Export failed")

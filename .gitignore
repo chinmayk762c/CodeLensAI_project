@@ -18,3 +18,4 @@ Thumbs.db
 # Env
 .env
 backend/github-app-private-key.pem
+.env
