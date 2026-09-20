@@ -62,7 +62,10 @@ export default function HomePage() {
             onChange={(e) => setFilter(e.target.value)}
             className="flex-1 bg-transparent border border-border rounded px-3 py-2 text-sm outline-none focus:border-foreground/50"
           />
-          <Button onClick={() => navigate("/submit")}>New Submission</Button>
+                    <div className="flex gap-2">
+            <Button onClick={() => navigate("/submit")}>New Submission</Button>
+            <Button variant="outline" onClick={() => navigate("/repo-analysis")}>Analyze Repo</Button>
+          </div>
         </div>
 
         {loading && <p className="text-muted-foreground text-sm">Loading submissions...</p>}

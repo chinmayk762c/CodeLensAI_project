@@ -1,4 +1,5 @@
 import { StrictMode } from "react"
+import RepoAnalysisPage from "@/pages/RepoAnalysisPage"
 import ReportPage from "@/pages/ReportPage"
 import SubmitPage from "@/pages/SubmitPage"
 import { createRoot } from "react-dom/client"
@@ -37,6 +38,14 @@ createRoot(document.getElementById("root")!).render(
             element={
               <ProtectedRoute>
                 <ReportPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/repo-analysis"
+            element={
+              <ProtectedRoute>
+                <RepoAnalysisPage />
               </ProtectedRoute>
             }
           />
