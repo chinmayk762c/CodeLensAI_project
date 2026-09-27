@@ -1,7 +1,6 @@
 import { StrictMode } from "react"
 import RepoAnalysisPage from "@/pages/RepoAnalysisPage"
-import ReportPage from "@/pages/ReportPage"
-import SubmitPage from "@/pages/SubmitPage"
+import WorkspacePage from "@/pages/WorkspacePage"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import "./index.css"
@@ -24,12 +23,11 @@ createRoot(document.getElementById("root")!).render(
               </ProtectedRoute>
             }
           />
-          <Route path="/login" element={<LoginPage />} />
                     <Route
             path="/submit"
             element={
               <ProtectedRoute>
-                <SubmitPage />
+                <WorkspacePage />
               </ProtectedRoute>
             }
           />
@@ -37,7 +35,7 @@ createRoot(document.getElementById("root")!).render(
             path="/submissions/:id"
             element={
               <ProtectedRoute>
-                <ReportPage />
+                <WorkspacePage />
               </ProtectedRoute>
             }
           />
@@ -49,6 +47,7 @@ createRoot(document.getElementById("root")!).render(
               </ProtectedRoute>
             }
           />
+                    <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </AuthProvider>

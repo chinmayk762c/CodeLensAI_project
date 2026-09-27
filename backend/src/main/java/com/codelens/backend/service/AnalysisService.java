@@ -100,8 +100,10 @@ public class AnalysisService {
                 ));
             }
 
+                        List<RawIssue> dedupedIssues = dedupeIssues(rawIssues);
+
             List<Issue> savedIssues = new ArrayList<>();
-            for (RawIssue raw : rawIssues) {
+            for (RawIssue raw : dedupedIssues) {
                 Issue issue = new Issue();
                 issue.setReport(report);
                 issue.setSeverity(raw.severity());
@@ -172,6 +174,23 @@ public class AnalysisService {
         } catch (Exception e) {
             return IssueCategory.BUG;
         }
+    }
+    private List<RawIssue> dedupeIssues(List<RawIssue> rawIssues) {
+        java.util.LinkedHashMap<String, List<RawIssue>> groups = new java.util.LinkedHashMap<>();
+        for (RawIssue issue : rawIssues) {
+            String key = issue.severity() + "|" + issue.category() + "|" + issue.description();
+            groups.computeIfAbsent(key, k -> new ArrayList<>()).add(issue);
+        }
+
+        List<RawIssue> result = new ArrayList<>();
+        for (List<RawIssue> group : groups.values()) {
+            RawIssue first = group.get(0);
+            String description = group.size() > 1
+                    ? first.description() + " (×" + group.size() + " occurrences)"
+                    : first.description();
+            result.add(new RawIssue(first.severity(), first.category(), description, first.lineNumber(), first.suggestion()));
+        }
+        return result;
     }
 
     private AnalysisReportResponse toResponse(AnalysisReport report, List<Issue> issues) {
