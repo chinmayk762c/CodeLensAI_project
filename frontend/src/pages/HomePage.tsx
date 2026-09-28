@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
+import { Trash2 } from "lucide-react"
+import { deleteSubmission } from "@/lib/SubmissionApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useNavigate } from "react-router-dom"
 import { listSubmissions, type SubmissionSummary } from "@/lib/SubmissionApi"
@@ -38,6 +40,16 @@ export default function HomePage() {
     s.language.toLowerCase().includes(filter.toLowerCase()) ||
     s.codePreview.toLowerCase().includes(filter.toLowerCase())
   )
+  async function handleDelete(e: React.MouseEvent, subId: number) {
+    e.stopPropagation()
+    if (!confirm("Delete this submission and its analysis history? This can't be undone.")) return
+    try {
+      await deleteSubmission(subId)
+      setSubmissions((prev) => prev.filter((s) => s.id !== subId))
+    } catch {
+      alert("Failed to delete submission.")
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
@@ -90,14 +102,23 @@ export default function HomePage() {
               className="hover:border-primary/50 transition-colors cursor-pointer"
               onClick={() => navigate(`/submissions/${sub.id}`)}
             >
-              <CardHeader>
+                            <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-normal">
                     {sub.language} — #{sub.id}
                   </CardTitle>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(sub.createdAt).toLocaleString()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(sub.createdAt).toLocaleString()}
+                    </span>
+                    <button
+                      onClick={(e) => handleDelete(e, sub.id)}
+                      className="text-muted-foreground hover:text-red-400 transition-colors"
+                      title="Delete submission"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

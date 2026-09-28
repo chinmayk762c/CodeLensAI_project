@@ -32,3 +32,6 @@ export interface SubmissionSummary {
 export function listSubmissions(): Promise<SubmissionSummary[]> {
   return apiFetch<SubmissionSummary[]>("/submissions")
 }
+export function deleteSubmission(id: number): Promise<void> {
+  return apiFetch<void>(`/submissions/${id}`, { method: "DELETE" })
+}

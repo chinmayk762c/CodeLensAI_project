@@ -6,6 +6,7 @@ import com.codelens.backend.entity.AnalysisReport;
 import com.codelens.backend.repository.AnalysisReportRepository;
 import java.util.List;
 import java.util.Optional;
+import com.codelens.backend.repository.IssueRepository;
 import com.codelens.backend.dto.SubmissionResponse;
 import com.codelens.backend.entity.CodeSubmission;
 import com.codelens.backend.entity.User;
@@ -21,6 +22,7 @@ public class SubmissionService {
 
     private final CodeSubmissionRepository submissionRepository;
     private final AnalysisReportRepository reportRepository;
+    private final IssueRepository issueRepository;
     private final UserRepository userRepository;
 
     public SubmissionResponse createSubmission(String userEmail, SubmissionRequest request) {
@@ -81,5 +83,20 @@ public class SubmissionService {
                     latestReport.map(AnalysisReport::getStatus).orElse(null)
             );
         }).toList();
+    }
+    public void deleteSubmission(String userEmail, Long submissionId) {
+        CodeSubmission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
+
+        if (!submission.getUser().getEmail().equals(userEmail)) {
+            throw new AccessDeniedException("You do not have access to this submission");
+        }
+
+        List<AnalysisReport> reports = reportRepository.findBySubmission_Id(submissionId);
+        for (AnalysisReport report : reports) {
+            issueRepository.deleteAll(issueRepository.findByReport_Id(report.getId()));
+        }
+        reportRepository.deleteAll(reports);
+        submissionRepository.delete(submission);
     }
 }
