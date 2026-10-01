@@ -25,37 +25,50 @@ public class AiReviewService {
                 .map(i -> "- [" + i.severity() + "/" + i.category() + "] " + i.description())
                 .collect(Collectors.joining("\n"));
 
-        String prompt = """
-                You are a senior Java code reviewer. Review the following Java code.
+                String prompt = """
+                You are reviewing a piece of code the way a sharp senior engineer reviews a solution: you judge whether it correctly and efficiently does what it's trying to do.
 
-                Static analysis tools already found these issues:
+                Static analysis tools already found these cosmetic/style issues (ignore these, do not repeat them):
                 %s
 
                 Your job:
-                1. Write a short (2-3 sentence) plain-English summary of the code's overall quality.
-                2. Identify any ADDITIONAL issues the static tools missed above, especially security vulnerabilities or logic bugs. Do not repeat issues already listed.
-                3. Provide an optimized, corrected version of the full code.
+                1. In 2-3 sentences, say what the code appears to be trying to accomplish, and whether it succeeds.
+                2. State the code's time and space complexity (Big-O), and briefly say whether that's reasonable for the problem or could be better.
+                3. List any additional problems: logic bugs, incorrect edge-case handling, inefficient approach, unnecessary complexity. Describe ONLY the problem and why it's a problem — never suggest the fix or the correct approach. No hints, no solutions, just diagnosis.
+                4. Provide an optimized version of the code: same scale and style as the original (do not add package declarations, class-level Javadoc, or enterprise structure unless the original already had it), focused specifically on correctness and improving time/space complexity where possible. If the original is already optimal, say so in the summary and return the original code with only real bugs fixed.
 
                 Respond with ONLY a single valid JSON object, no markdown code fences, no extra text before or after, exactly matching this shape:
                 {
                   "summary": "string",
+                  "complexity": "e.g. Time: O(n), Space: O(1) — one sentence on whether that's good enough",
                   "additionalIssues": [
-                    {"severity": "LOW|MEDIUM|HIGH|CRITICAL", "category": "BUG|CODE_SMELL|SECURITY|PERFORMANCE|STYLE", "description": "string", "lineNumber": number or null}
+                    {"severity": "LOW|MEDIUM|HIGH|CRITICAL", "category": "BUG|CODE_SMELL|SECURITY|PERFORMANCE|STYLE", "description": "string, diagnosis only, no fix suggested", "lineNumber": number or null}
                   ],
                   "optimizedCode": "the full optimized code as one string, with real newlines properly escaped as \\n"
                 }
 
                 Code to review:
             %s
-                """.formatted(issuesSummary.isBlank() ? "(none)" : issuesSummary, code);
+                                """.formatted(issuesSummary.isBlank() ? "(none)" : issuesSummary, code);
 
-        String raw = chatClient.prompt().user(prompt).call().content();
-        String cleaned = stripCodeFences(raw);
+        return callWithRetry(prompt, 2);
+    }
 
+    private AiReviewResult callWithRetry(String prompt, int attemptsLeft) {
         try {
+            String raw = chatClient.prompt().user(prompt).call().content();
+            String cleaned = stripCodeFences(raw);
             return lenientMapper.readValue(cleaned, AiReviewResult.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse AI response: " + e.getMessage(), e);
+            if (attemptsLeft > 0) {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+                return callWithRetry(prompt, attemptsLeft - 1);
+            }
+            throw new RuntimeException("Failed to get AI response after retries: " + e.getMessage(), e);
         }
     }
 

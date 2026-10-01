@@ -13,6 +13,7 @@ public record AnalysisReportResponse(
         boolean qualityGatePassed,
         Double coveragePercentage,
         String aiSummary,
+        String complexityNote,
         String optimizedCode,
         Instant createdAt,
         List<IssueResponse> issues

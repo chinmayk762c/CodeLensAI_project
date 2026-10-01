@@ -26,9 +26,13 @@ public class AnalysisReport {
     @Column(nullable = false)
     private AnalysisStatus status = AnalysisStatus.PENDING;
 
-    private Integer overallScore;
+        private Integer overallScore;
+
     @Column(columnDefinition = "TEXT")
     private String aiSummary;
+
+    @Column(columnDefinition = "TEXT")
+    private String complexityNote;
 
     @Column(columnDefinition = "TEXT")
     private String optimizedCode;

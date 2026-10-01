@@ -4,6 +4,7 @@ import java.util.List;
 
 public record AiReviewResult(
         String summary,
+        String complexity,
         List<AiIssueDto> additionalIssues,
         String optimizedCode
 ) {}

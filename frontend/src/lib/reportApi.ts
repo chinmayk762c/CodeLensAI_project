@@ -17,6 +17,7 @@ export interface AnalysisReportResponse {
   qualityGatePassed: boolean
   coveragePercentage: number | null
   aiSummary: string | null
+  complexityNote: string | null
   optimizedCode: string | null
   createdAt: string
   issues: IssueResponse[]

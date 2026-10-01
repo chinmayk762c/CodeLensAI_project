@@ -116,7 +116,8 @@ public class AnalysisService {
 
             try {
                 AiReviewResult aiResult = aiReviewService.review(submission.getCode(), rawIssues);
-                report.setAiSummary(aiResult.summary());
+                                report.setAiSummary(aiResult.summary());
+                report.setComplexityNote(aiResult.complexity());
                 report.setOptimizedCode(aiResult.optimizedCode());
 
                 if (aiResult.additionalIssues() != null) {
@@ -204,7 +205,7 @@ public class AnalysisService {
                 boolean qualityGatePassed = report.getOverallScore() != null
                 && scoringService.passesQualityGate(report.getOverallScore());
 
-                return new AnalysisReportResponse(
+                                return new AnalysisReportResponse(
                 report.getId(),
                 report.getSubmission().getId(),
                 report.getStatus(),
@@ -212,11 +213,13 @@ public class AnalysisService {
                 qualityGatePassed,
                 report.getCoveragePercentage(),
                 report.getAiSummary(),
+                report.getComplexityNote(),
                 report.getOptimizedCode(),
                 report.getCreatedAt(),
                 issueResponses
         );
     }
+
     public AnalysisReportResponse getLatestReport(String userEmail, Long submissionId) {
         CodeSubmission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
@@ -230,6 +233,7 @@ public class AnalysisService {
 
         List<Issue> issues = issueRepository.findByReport_Id(report.getId());
 
-        return toResponse(report, issues);
+                return toResponse(report, issues);
+    
     }
 }

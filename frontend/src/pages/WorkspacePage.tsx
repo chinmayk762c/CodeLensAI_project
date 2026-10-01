@@ -542,6 +542,12 @@ export default function WorkspacePage() {
             </div>
           </div>
 
+                    {report.complexityNote && (
+            <div className="rounded-md border border-border bg-card/40 p-3">
+              <div className="text-[11px] text-muted-foreground mb-1.5">Complexity</div>
+              <p className="text-xs leading-relaxed text-foreground/90 font-mono">{report.complexityNote}</p>
+            </div>
+          )}
           {report.aiSummary && (
             <div className="rounded-md border border-border bg-card/40 p-3">
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1.5">
