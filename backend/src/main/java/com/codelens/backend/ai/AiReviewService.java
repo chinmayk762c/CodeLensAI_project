@@ -35,7 +35,7 @@ public class AiReviewService {
                 1. In 2-3 sentences, say what the code appears to be trying to accomplish, and whether it succeeds.
                 2. State the code's time and space complexity (Big-O), and briefly say whether that's reasonable for the problem or could be better.
                 3. List any additional problems: logic bugs, incorrect edge-case handling, inefficient approach, unnecessary complexity. Describe ONLY the problem and why it's a problem — never suggest the fix or the correct approach. No hints, no solutions, just diagnosis.
-                4. Provide an optimized version of the code: same scale and style as the original (do not add package declarations, class-level Javadoc, or enterprise structure unless the original already had it), focused specifically on correctness and improving time/space complexity where possible. If the original is already optimal, say so in the summary and return the original code with only real bugs fixed.
+                                4. Provide a genuinely optimized version of the code. Always use the best time and space complexity approach available for the problem being solved, even if that means changing the algorithm or data structure entirely, not just cleaning up the original approach. Keep the code's scale and style proportionate to the original (do not add package declarations, class-level Javadoc, or enterprise structure unless the original already had it) — the goal is a cleaner, faster, more efficient version, not a more "enterprise" one. State the resulting complexity in the "complexity" field. If the original already uses the optimal approach, say so clearly and only clean up the code itself.
 
                 Respond with ONLY a single valid JSON object, no markdown code fences, no extra text before or after, exactly matching this shape:
                 {
@@ -54,15 +54,16 @@ public class AiReviewService {
         return callWithRetry(prompt, 2);
     }
 
-    private AiReviewResult callWithRetry(String prompt, int attemptsLeft) {
+        private AiReviewResult callWithRetry(String prompt, int attemptsLeft) {
         try {
             String raw = chatClient.prompt().user(prompt).call().content();
             String cleaned = stripCodeFences(raw);
             return lenientMapper.readValue(cleaned, AiReviewResult.class);
-        } catch (Exception e) {
+                } catch (Exception e) {
+            boolean isRateLimit = e.getMessage() != null && e.getMessage().contains("429");
             if (attemptsLeft > 0) {
                 try {
-                    Thread.sleep(1500);
+                    Thread.sleep(isRateLimit ? 8000 : 1500);
                 } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
                 }
